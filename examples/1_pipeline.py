@@ -9,7 +9,7 @@ from skimage import io
 # import matplotlib.pyplot as plt
 
 sys.path.append('..')
-import face3d
+# import face3d
 from face3d import mesh
 
 # ------------------------------ 1. load mesh data

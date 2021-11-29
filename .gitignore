@@ -1,3 +1,5 @@
+mesh_core_cython.cpp
+
 # PyCharm ###
 .idea
 .idea/*

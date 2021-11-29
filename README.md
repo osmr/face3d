@@ -101,6 +101,9 @@ morphable_model/
 ```
 pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
+cd face3d/mesh/cython
+python setup.py build_ext -i
+cd ../../..
 ```
 
 ### Prerequisite

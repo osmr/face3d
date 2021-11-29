@@ -97,6 +97,12 @@ morphable_model/
 
 ## Getting Started
 
+### Testing repo
+```
+pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt -f https://download.pytorch.org/whl/cu113/torch_stable.html
+```
+
 ### Prerequisite
 
 - Python 2 or Python 3 

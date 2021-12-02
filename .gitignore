@@ -1,3 +1,5 @@
+examples/Data/BFM/*
+examples/results/*
 mesh_core_cython.cpp
 
 # PyCharm ###

@@ -1,8 +1,8 @@
-'''
+"""
 Functions about lighting mesh(changing colors/texture of mesh).
 1. add light to colors/texture (shade each vertex)
 2. fit light according to colors/texture & image.
-'''
+"""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -11,20 +11,22 @@ from __future__ import print_function
 import numpy as np
 from .cython import mesh_core_cython
 
+
 def get_normal(vertices, triangles):
-    ''' calculate normal direction in each vertex
+    """
+    Calculate normal direction in each vertex
     Args:
         vertices: [nver, 3]
         triangles: [ntri, 3]
     Returns:
         normal: [nver, 3]
-    '''
-    pt0 = vertices[triangles[:, 0], :] # [ntri, 3]
-    pt1 = vertices[triangles[:, 1], :] # [ntri, 3]
-    pt2 = vertices[triangles[:, 2], :] # [ntri, 3]
-    tri_normal = np.cross(pt0 - pt1, pt0 - pt2) # [ntri, 3]. normal of each triangle
+    """
+    pt0 = vertices[triangles[:, 0], :]  # [ntri, 3]
+    pt1 = vertices[triangles[:, 1], :]  # [ntri, 3]
+    pt2 = vertices[triangles[:, 2], :]  # [ntri, 3]
+    tri_normal = np.cross(pt0 - pt1, pt0 - pt2)  # [ntri, 3]. normal of each triangle
 
-    normal = np.zeros_like(vertices, dtype = np.float32).copy() # [nver, 3]
+    normal = np.zeros_like(vertices, dtype=np.float32).copy()  # [nver, 3]
     # for i in range(triangles.shape[0]):
     #     normal[triangles[i, 0], :] = normal[triangles[i, 0], :] + tri_normal[i, :]
     #     normal[triangles[i, 1], :] = normal[triangles[i, 1], :] + tri_normal[i, :]
@@ -32,18 +34,19 @@ def get_normal(vertices, triangles):
     mesh_core_cython.get_normal_core(normal, tri_normal.astype(np.float32).copy(), triangles.copy(), triangles.shape[0])
 
     # normalize to unit length
-    mag = np.sum(normal**2, 1) # [nver]
+    mag = np.sum(normal**2, 1)  # [nver]
     zero_ind = (mag == 0)
-    mag[zero_ind] = 1;
+    mag[zero_ind] = 1
     normal[zero_ind, 0] = np.ones((np.sum(zero_ind)))
 
-    normal = normal/np.sqrt(mag[:,np.newaxis])
+    normal = normal / np.sqrt(mag[:, np.newaxis])
 
     return normal
 
+
 # TODO: test
 def add_light_sh(vertices, triangles, colors, sh_coeff):
-    ''' 
+    """
     In 3d face, usually assume:
     1. The surface of face is Lambertian(reflect only the low frequencies of lighting)
     2. Lighting can be an arbitrary combination of point sources
@@ -63,7 +66,7 @@ def add_light_sh(vertices, triangles, colors, sh_coeff):
 
     Returns:
         lit_colors: [nver, 3]
-    '''
+    """
     assert vertices.shape[0] == colors.shape[0]
     nver = vertices.shape[0]
     normal = get_normal(vertices, triangles) # [nver, 3]
@@ -73,8 +76,9 @@ def add_light_sh(vertices, triangles, colors, sh_coeff):
     return lit_colors
 
 
-def add_light(vertices, triangles, colors, light_positions = 0, light_intensities = 0):
-    ''' Gouraud shading. add point lights.
+def add_light(vertices, triangles, colors, light_positions=0, light_intensities=0):
+    """
+    Gouraud shading. add point lights.
     In 3d face, usually assume:
     1. The surface of face is Lambertian(reflect only the low frequencies of lighting)
     2. Lighting can be an arbitrary combination of point sources
@@ -88,22 +92,22 @@ def add_light(vertices, triangles, colors, light_positions = 0, light_intensitie
         light_intensities: [nlight, 3]
     Returns:
         lit_colors: [nver, 3]
-    '''
-    nver = vertices.shape[0]
-    normals = get_normal(vertices, triangles) # [nver, 3]
+    """
+    # nver = vertices.shape[0]
+    normals = get_normal(vertices, triangles)  # [nver, 3]
 
     # ambient
     # La = ka*Ia
 
     # diffuse
     # Ld = kd*(I/r^2)max(0, nxl)
-    direction_to_lights = vertices[np.newaxis, :, :] - light_positions[:, np.newaxis, :] # [nlight, nver, 3]
-    direction_to_lights_n = np.sqrt(np.sum(direction_to_lights**2, axis = 2)) # [nlight, nver]
-    direction_to_lights = direction_to_lights/direction_to_lights_n[:, :, np.newaxis]
-    normals_dot_lights = normals[np.newaxis, :, :]*direction_to_lights # [nlight, nver, 3]
-    normals_dot_lights = np.sum(normals_dot_lights, axis = 2) # [nlight, nver]
-    diffuse_output = colors[np.newaxis, :, :]*normals_dot_lights[:, :, np.newaxis]*light_intensities[:, np.newaxis, :]
-    diffuse_output = np.sum(diffuse_output, axis = 0) # [nver, 3]
+    direction_to_lights = vertices[np.newaxis, :, :] - light_positions[:, np.newaxis, :]  # [nlight, nver, 3]
+    direction_to_lights_n = np.sqrt(np.sum(direction_to_lights**2, axis=2))  # [nlight, nver]
+    direction_to_lights = direction_to_lights / direction_to_lights_n[:, :, np.newaxis]
+    normals_dot_lights = normals[np.newaxis, :, :] * direction_to_lights  # [nlight, nver, 3]
+    normals_dot_lights = np.sum(normals_dot_lights, axis=2)  # [nlight, nver]
+    diffuse_output = colors[np.newaxis, :, :] * normals_dot_lights[:, :, np.newaxis]*light_intensities[:, np.newaxis, :]
+    diffuse_output = np.sum(diffuse_output, axis=0)  # [nver, 3]
     
     # specular
     # h = (v + l)/(|v + l|) bisector
@@ -113,7 +117,6 @@ def add_light(vertices, triangles, colors, light_positions = 0, light_intensitie
     lit_colors = diffuse_output # only diffuse part here.
     lit_colors = np.minimum(np.maximum(lit_colors, 0), 1)
     return lit_colors
-
 
 
 ## TODO. estimate light(sh coeff)
@@ -210,4 +213,3 @@ def fit_light(image, vertices, colors, triangles, vis_ind, lamb = 10, max_iter =
     appearance = np.minimum(np.maximum(appearance, 0), 1)
 
     return appearance
-

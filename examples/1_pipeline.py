@@ -41,7 +41,7 @@ lit_colors = mesh.light.add_light(transformed_vertices, triangles, colors, light
 # ------------------------------ 4. modify vertices(projection. change position of camera)
 # -- transform object from world space to camera space(what the world is in the eye of observer). 
 # -- omit if using standard camera
-camera_vertices = mesh.transform.lookat_camera(transformed_vertices, eye = [0, 0, 200], at = np.array([0, 0, 0]), up = None)
+camera_vertices = mesh.transform.lookat_camera(transformed_vertices, eye=[0, 0, 200], at=np.array([0, 0, 0]), up=None)
 # -- project object from 3d world space into 2d image plane. orthographic or perspective projection
 projected_vertices = mesh.transform.orthographic_project(camera_vertices)
 
@@ -51,7 +51,7 @@ h = w = 256
 # change to image coords for rendering
 image_vertices = mesh.transform.to_image(projected_vertices, h, w)
 # render 
-rendering =  mesh.render.render_colors(image_vertices, triangles, lit_colors, h, w)
+rendering = mesh.render.render_colors(image_vertices, triangles, lit_colors, h, w)
 
 # ---- show rendering
 # plt.imshow(rendering)
@@ -63,4 +63,5 @@ io.imsave('{}/rendering.jpg'.format(save_folder), rendering)
 
 # ---- show mesh
 # mesh.vis.plot_mesh(camera_vertices, triangles)
+# import matplotlib.pyplot as plt
 # plt.show()

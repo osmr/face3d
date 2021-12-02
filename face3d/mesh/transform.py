@@ -127,7 +127,7 @@ def normalize(x):
     return x / norm
 
 
-def lookat_camera(vertices, eye, at = None, up = None):
+def lookat_camera(vertices, eye, at=None, up=None):
     """
     'look at' transformation: from world space to camera space
     standard camera space: 
@@ -151,13 +151,13 @@ def lookat_camera(vertices, eye, at = None, up = None):
 
     eye = np.array(eye).astype(np.float32)
     at = np.array(at).astype(np.float32)
-    z_aixs = -normalize(at - eye) # look forward
-    x_aixs = normalize(np.cross(up, z_aixs)) # look right
-    y_axis = np.cross(z_aixs, x_aixs) # look up
+    z_aixs = -normalize(at - eye)  # look forward
+    x_aixs = normalize(np.cross(up, z_aixs))  # look right
+    y_axis = np.cross(z_aixs, x_aixs)  # look up
 
-    R = np.stack((x_aixs, y_axis, z_aixs))#, axis = 0) # 3 x 3
-    transformed_vertices = vertices - eye # translation
-    transformed_vertices = transformed_vertices.dot(R.T) # rotation
+    R = np.stack((x_aixs, y_axis, z_aixs))#, axis = 0)  # 3 x 3
+    transformed_vertices = vertices - eye  # translation
+    transformed_vertices = transformed_vertices.dot(R.T)  # rotation
     return transformed_vertices
 
 
@@ -230,13 +230,13 @@ def to_image(vertices, h, w, is_perspective=False):
     image_vertices = vertices.copy()
     if is_perspective:
         # if perspective, the projected vertices are normalized to [-1, 1]. so change it to image size first.
-        image_vertices[:,0] = image_vertices[:,0]*w/2
-        image_vertices[:,1] = image_vertices[:,1]*h/2
+        image_vertices[:, 0] = image_vertices[:, 0] * w / 2
+        image_vertices[:, 1] = image_vertices[:, 1] * h / 2
     # move to center of image
-    image_vertices[:,0] = image_vertices[:,0] + w/2
-    image_vertices[:,1] = image_vertices[:,1] + h/2
+    image_vertices[:, 0] = image_vertices[:, 0] + w / 2
+    image_vertices[:, 1] = image_vertices[:, 1] + h / 2
     # flip vertices along y-axis.
-    image_vertices[:,1] = h - image_vertices[:,1] - 1
+    image_vertices[:, 1] = h - image_vertices[:, 1] - 1
     return image_vertices
 
 

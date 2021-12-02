@@ -76,11 +76,15 @@ def add_light_sh(vertices, triangles, colors, sh_coeff):
     return lit_colors
 
 
-def add_light(vertices, triangles, colors, light_positions=0, light_intensities=0):
+def add_light(vertices,
+              triangles,
+              colors,
+              light_positions=0,
+              light_intensities=0):
     """
     Gouraud shading. add point lights.
     In 3d face, usually assume:
-    1. The surface of face is Lambertian(reflect only the low frequencies of lighting)
+    1. The surface of face is Lambertian (reflect only the low frequencies of lighting)
     2. Lighting can be an arbitrary combination of point sources
     3. No specular (unless skin is oil, 23333)
 
@@ -106,7 +110,8 @@ def add_light(vertices, triangles, colors, light_positions=0, light_intensities=
     direction_to_lights = direction_to_lights / direction_to_lights_n[:, :, np.newaxis]
     normals_dot_lights = normals[np.newaxis, :, :] * direction_to_lights  # [nlight, nver, 3]
     normals_dot_lights = np.sum(normals_dot_lights, axis=2)  # [nlight, nver]
-    diffuse_output = colors[np.newaxis, :, :] * normals_dot_lights[:, :, np.newaxis]*light_intensities[:, np.newaxis, :]
+    diffuse_output = colors[np.newaxis, :, :] * normals_dot_lights[:, :, np.newaxis] *\
+                     light_intensities[:, np.newaxis, :]
     diffuse_output = np.sum(diffuse_output, axis=0)  # [nver, 3]
     
     # specular

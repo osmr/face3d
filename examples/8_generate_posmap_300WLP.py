@@ -6,8 +6,8 @@ import numpy as np
 import scipy.io as sio
 from skimage import io
 import skimage.transform
-from time import time
-import matplotlib.pyplot as plt
+# from time import time
+# import matplotlib.pyplot as plt
 
 sys.path.append('..')
 import face3d

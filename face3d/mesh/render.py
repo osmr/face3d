@@ -19,6 +19,7 @@ from time import time
 
 from .cython import mesh_core_cython
 
+
 def rasterize_triangles(vertices, triangles, h, w):
     ''' 
     Args:
@@ -37,20 +38,27 @@ def rasterize_triangles(vertices, triangles, h, w):
 
     # initial 
     depth_buffer = np.zeros([h, w]) - 999999. #set the initial z to the farest position
-    triangle_buffer = np.zeros([h, w], dtype = np.int32) - 1  # if tri id = -1, the pixel has no triangle correspondance
-    barycentric_weight = np.zeros([h, w, 3], dtype = np.float32)  # 
+    triangle_buffer = np.zeros([h, w], dtype=np.int32) - 1  # if tri id = -1, the pixel has no triangle correspondance
+    barycentric_weight = np.zeros([h, w, 3], dtype=np.float32)  #
     
     vertices = vertices.astype(np.float32).copy()
     triangles = triangles.astype(np.int32).copy()
 
     mesh_core_cython.rasterize_triangles_core(
-                vertices, triangles,
-                depth_buffer, triangle_buffer, barycentric_weight, 
-                vertices.shape[0], triangles.shape[0], 
-                h, w)
+        vertices,
+        triangles,
+        depth_buffer,
+        triangle_buffer,
+        barycentric_weight,
+        vertices.shape[0],
+        triangles.shape[0],
+        h,
+        w)
 
-def render_colors(vertices, triangles, colors, h, w, c = 3, BG = None):
-    ''' render mesh with colors
+
+def render_colors(vertices, triangles, colors, h, w, c=3, BG=None):
+    '''
+    render mesh with colors
     Args:
         vertices: [nver, 3]
         triangles: [ntri, 3] 
@@ -65,28 +73,33 @@ def render_colors(vertices, triangles, colors, h, w, c = 3, BG = None):
 
     # initial 
     if BG is None:
-        image = np.zeros((h, w, c), dtype = np.float32)
+        image = np.zeros((h, w, c), dtype=np.float32)
     else:
         assert BG.shape[0] == h and BG.shape[1] == w and BG.shape[2] == c
         image = BG
-    depth_buffer = np.zeros([h, w], dtype = np.float32, order = 'C') - 999999.
+    depth_buffer = np.zeros([h, w], dtype=np.float32, order='C') - 999999.
 
     # change orders. --> C-contiguous order(column major)
     vertices = vertices.astype(np.float32).copy()
     triangles = triangles.astype(np.int32).copy()
     colors = colors.astype(np.float32).copy()
     ###
-    st = time()
+    # st = time()
     mesh_core_cython.render_colors_core(
-                image, vertices, triangles,
-                colors,
-                depth_buffer,
-                vertices.shape[0], triangles.shape[0], 
-                h, w, c)
+        image,
+        vertices,
+        triangles,
+        colors,
+        depth_buffer,
+        vertices.shape[0],
+        triangles.shape[0],
+        h,
+        w,
+        c)
     return image
 
 
-def render_texture(vertices, triangles, texture, tex_coords, tex_triangles, h, w, c = 3, mapping_type = 'nearest', BG = None):
+def render_texture(vertices, triangles, texture, tex_coords, tex_triangles, h, w, c=3, mapping_type='nearest', BG=None):
     ''' render mesh with texture map
     Args:
         vertices: [3, nver]
@@ -101,12 +114,12 @@ def render_texture(vertices, triangles, texture, tex_coords, tex_triangles, h, w
     '''
     # initial 
     if BG is None:
-        image = np.zeros((h, w, c), dtype = np.float32)
+        image = np.zeros((h, w, c), dtype=np.float32)
     else:
         assert BG.shape[0] == h and BG.shape[1] == w and BG.shape[2] == c
         image = BG
 
-    depth_buffer = np.zeros([h, w], dtype = np.float32, order = 'C') - 999999.
+    depth_buffer = np.zeros([h, w], dtype=np.float32, order='C') - 999999.
     
     tex_h, tex_w, tex_c = texture.shape
     if mapping_type == 'nearest':
@@ -124,12 +137,21 @@ def render_texture(vertices, triangles, texture, tex_coords, tex_triangles, h, w
     tex_triangles = tex_triangles.astype(np.int32).copy()
 
     mesh_core_cython.render_texture_core(
-                image, vertices, triangles,
-                texture, tex_coords, tex_triangles,
-                depth_buffer,
-                vertices.shape[0], tex_coords.shape[0], triangles.shape[0], 
-                h, w, c,
-                tex_h, tex_w, tex_c,
-                mt)
+        image,
+        vertices,
+        triangles,
+        texture,
+        tex_coords,
+        tex_triangles,
+        depth_buffer,
+        vertices.shape[0],
+        tex_coords.shape[0],
+        triangles.shape[0],
+        h,
+        w,
+        c,
+        tex_h,
+        tex_w,
+        tex_c,
+        mt)
     return image
-

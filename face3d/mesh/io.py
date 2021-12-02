@@ -5,20 +5,23 @@ from __future__ import print_function
 import numpy as np
 import os
 from skimage import io
-from time import time
+# from time import time
 
 from .cython import mesh_core_cython
+
 
 ## TODO
 ## TODO: c++ version
 def read_obj(obj_name):
-	''' read mesh
+    '''
+	read mesh
 	'''
-	return 0
+    return 0
 
-# ------------------------- write
+
 def write_asc(path, vertices):
     '''
+    # ------------------------- write
     Args:
         vertices: shape = (nver, 3)
     '''
@@ -27,8 +30,10 @@ def write_asc(path, vertices):
     else:
         np.savetxt(path + '.asc', vertices)
 
+
 def write_obj_with_colors(obj_name, vertices, triangles, colors):
-    ''' Save 3D face model with texture represented by colors.
+    '''
+    Save 3D face model with texture represented by colors.
     Args:
         obj_name: str
         vertices: shape = (nver, 3)
@@ -57,9 +62,11 @@ def write_obj_with_colors(obj_name, vertices, triangles, colors):
             s = 'f {} {} {}\n'.format(triangles[i, 2], triangles[i, 1], triangles[i, 0])
             f.write(s)
 
+
 ## TODO: c++ version
 def write_obj_with_texture(obj_name, vertices, triangles, texture, uv_coords):
-    ''' Save 3D face model with texture represented by texture map.
+    '''
+    Save 3D face model with texture represented by texture map.
     Ref: https://github.com/patrikhuber/eos/blob/bd00155ebae4b1a13b08bf5a991694d682abbada/include/eos/core/Mesh.hpp
     Args:
         obj_name: str
@@ -108,9 +115,11 @@ def write_obj_with_texture(obj_name, vertices, triangles, texture, uv_coords):
     # write texture as png
     imsave(texture_name, texture)
 
-# c++ version
+
 def write_obj_with_colors_texture(obj_name, vertices, triangles, colors, texture, uv_coords):
-    ''' Save 3D face model with texture. 
+    '''
+    Save 3D face model with texture.
+    # c++ version
     Ref: https://github.com/patrikhuber/eos/blob/bd00155ebae4b1a13b08bf5a991694d682abbada/include/eos/core/Mesh.hpp
     Args:
         obj_name: str
@@ -126,11 +135,20 @@ def write_obj_with_colors_texture(obj_name, vertices, triangles, colors, texture
     texture_name = obj_name.replace('.obj', '_texture.png')
     
     triangles = triangles.copy()
-    triangles += 1 # mesh lab start with 1
+    triangles += 1  # mesh lab start with 1
     
     # write obj
     vertices, colors, uv_coords = vertices.astype(np.float32).copy(), colors.astype(np.float32).copy(), uv_coords.astype(np.float32).copy()
-    mesh_core_cython.write_obj_with_colors_texture_core(str.encode(obj_name), str.encode(os.path.abspath(mtl_name)), vertices, triangles, colors, uv_coords, vertices.shape[0], triangles.shape[0], uv_coords.shape[0])
+    mesh_core_cython.write_obj_with_colors_texture_core(
+        str.encode(obj_name),
+        str.encode(os.path.abspath(mtl_name)),
+        vertices,
+        triangles,
+        colors,
+        uv_coords,
+        vertices.shape[0],
+        triangles.shape[0],
+        uv_coords.shape[0])
    
     # write mtl
     with open(mtl_name, 'w') as f:
